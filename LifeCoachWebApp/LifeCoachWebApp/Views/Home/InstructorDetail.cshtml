@@ -1,0 +1,111 @@
+﻿@using LifeCoachWebApp.Models.Classes
+@model List<Instructor>
+@{
+    ViewBag.Title = "InstructorDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/nice-select.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/slicknav.min.css" />
+
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/style.css" />
+</head>
+
+<body>
+    <!-- Trainers Section -->
+
+    @foreach (var x in Model)
+    {
+        <section class="trainer-details-section spad overflow-hidden">
+            <div class="container">
+                <div class="trainer-details">
+                    <div class="trainer-info">
+                        <div class="td-left">
+                            <img src="@x.InstructorImage" alt="">
+                            <h6>@x.InstructorCity</h6>
+                        </div>
+                        <div class="td-right">
+                            <h3>@x.InstructorName @x.InstructorLastName</h3>
+                            <h6>@x.WorkingAreas.WorkingAreaName</h6>
+                            <ul>
+                                <li><strong>Deneyim Yılı:</strong><p>@x.InstructorExperience</p></li>
+                                <li><strong>Email:</strong><p>@x.InstructorMail</p></li>
+                                <li><strong>Telefon:</strong><p>@x.InstructorPhoneNumber</p></li>
+                                <li><strong>Ön Yazı:</strong><p>@x.InstructorCoverLetter</p></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="trainer-details-text">
+                        <h3>Hakkında</h3>
+                        <p>@x.InstructorAbout</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+            }
+
+        <!-- Trainers Section end -->
+        <!-- Gallery Section -->
+        <div class="gallery-section">
+            <div class="gallery-slider owl-carousel">
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/1.jpg" alt="">
+                    <div class="gs-hover">
+                        <i class="fa fa-instagram"></i>
+                        <p>ahana.yoga</p>
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/2.jpg" alt="">
+                    <div class="gs-hover">
+                        <i class="fa fa-instagram"></i>
+                        <p>ahana.yoga</p>
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/3.jpg" alt="">
+                    <div class="gs-hover">
+                        <i class="fa fa-instagram"></i>
+                        <p>ahana.yoga</p>
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/4.jpg" alt="">
+                    <div class="gs-hover">
+                        <i class="fa fa-instagram"></i>
+                        <p>ahana.yoga</p>
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/5.jpg" alt="">
+                    <div class="gs-hover">
+                        <i class="fa fa-instagram"></i>
+                        <p>ahana.yoga</p>
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/6.jpg" alt="">
+                    <div class="gs-hover">
+                        <i class="fa fa-instagram"></i>
+                        <p>ahana.yoga</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Gallery Section end -->
+        <!--====== Javascripts & Jquery ======-->
+        <script src="~/Css/ahana-master/ahana-master/js/vendor/jquery-3.2.1.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/bootstrap.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery.slicknav.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/owl.carousel.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery.nice-select.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery-ui.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery.magnific-popup.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/main.js"></script>
+    </body>

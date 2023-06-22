@@ -1,0 +1,150 @@
+﻿@model LifeCoachWebApp.Models.Classes.InstrWA
+@{
+    ViewBag.Title = "InstructorList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/owl.carousel.min.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/nice-select.css" />
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/slicknav.min.css" />
+    <style>
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+            .dropdown-content a {
+                color: black;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+            }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropbtn {
+            background-color: #f65d5d;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+            .dropbtn:hover {
+                background-color: #f75f5f;
+                color: white;
+            }
+    </style>
+
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="~/Css/ahana-master/ahana-master/css/style.css" />
+</head>
+    <body>
+        <br />
+        <div class="col-md-3">
+
+            <div class="dropdown">
+                <button class="dropbtn">Alan Seç</button>
+                <div class="dropdown-content">
+                    <a href="/Home/InstructorList">Tüm Alanlar</a>
+                    @foreach (var u in Model.Alanlar)
+                    {
+                        <a href="@Url.Action("InstructorList","Home", new {id = u.WorkingAreaID})">@u.WorkingAreaName</a>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Trainers Section -->
+        <section class="trainers-page-section spad overflow-hidden">
+            <div class="container">
+                <div class="row">
+                    @foreach (var u in Model.Egitmenler)
+                    {
+                        <div class="col-lg-6">
+                            <div class="trainer-item">
+                                <div class="ti-img">
+                                    <img src="@u.InstructorImage" alt="">
+                                </div>
+                                <div class="ti-text">
+                                    <a href="/Home/InstructorDetail/@u.InstructorID"><h4>@u.InstructorName @u.InstructorLastName</h4></a>
+                                    <h6>@u.WorkingAreas.WorkingAreaName</h6>
+                                    <p>@u.InstructorCoverLetter</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="site-pagination">
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#"><i class="material-icons">keyboard_arrow_right</i></a>
+                </div>
+            </div>
+        </section>
+        <!-- Trainers Section end -->
+        <!-- Gallery Section -->
+        <div class="gallery-section">
+            <div class="gallery-slider owl-carousel">
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/1.jpg" alt="">
+                    <div class="gs-hover">
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/2.jpg" alt="">
+                    <div class="gs-hover">
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/3.jpg" alt="">
+                    <div class="gs-hover">
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/4.jpg" alt="">
+                    <div class="gs-hover">
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/5.jpg" alt="">
+                    <div class="gs-hover">
+                    </div>
+                </div>
+                <div class="gs-item">
+                    <img src="~/Css/ahana-master/ahana-master/img/gallery/6.jpg" alt="">
+                    <div class="gs-hover">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Gallery Section end -->
+        <!--====== Javascripts & Jquery ======-->
+        <script src="~/Css/ahana-master/ahana-master/js/vendor/jquery-3.2.1.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/bootstrap.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery.slicknav.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/owl.carousel.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery.nice-select.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery-ui.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/jquery.magnific-popup.min.js"></script>
+        <script src="~/Css/ahana-master/ahana-master/js/main.js"></script>
+    </body>

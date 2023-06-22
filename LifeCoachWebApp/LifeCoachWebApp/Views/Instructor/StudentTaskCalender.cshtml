@@ -1,0 +1,420 @@
+﻿@using System.Web.Script.Serialization
+@model LifeCoachWebApp.Models.Classes.TaskViewModel
+@{
+    ViewBag.Title = "StudentTaskCalender";
+    Layout = "~/Views/Shared/_InstructorAdminPanel.cshtml";
+    int studentId = Model.TaskList.FirstOrDefault()?.Students?.StudentID ?? 0; // Get studentId from TaskList
+}
+<script>
+    var studentId = @studentId; // Add this line
+</script>
+<h2>StudentTaskCalender</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Bootstrap CSS-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!--FullCalendar CSS-->
+
+    <!--jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!--Popper.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <!--Bootstrap JavaScript-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!--Moment.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!--FullCalendar plugin-->
+
+
+    <!--fullcalendar plugin-->
+    <script src='~/fullcalendar/fullcalendar-6.1.6/dist/index.global.js'></script>
+
+
+    <script>
+   var serverData = @Html.Raw(Model.TaskList != null ? Newtonsoft.Json.JsonConvert.SerializeObject(Model.TaskList, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }) : "[]");
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+        fillStudentOptions();
+        var studentSelect = document.getElementById('studentSelect');
+
+        function parseAspNetDate(input) {
+            var re = /-?\d+/;
+            var m = re.exec(input);
+            return new Date(parseInt(m[0], 10));
+        }
+            var calendarEl = document.getElementById('calendar');
+            var events = [];
+
+            studentSelect.addEventListener('change', function () {
+                var selectedStudentId = parseInt(this.value, 10);
+                studentId = selectedStudentId;
+                fetchTasks(selectedStudentId); // fetch the tasks for the selected student
+            });
+
+            function filterEvents(studentId) {
+                var filteredEvents = events.filter(function (event) {
+                    return event.studentId === studentId;
+                });
+                return filteredEvents;
+            }
+
+        // localStorage'dan mevcut tarih ve görünüm ayarlarını alın
+        var initialDate = localStorage.getItem('currentDate') || new Date().toISOString().slice(0,10);
+        var initialView = localStorage.getItem('currentView') || 'dayGridMonth';
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+
+            dateClick: function (info) {
+                    // Tıklanan tarihi alın
+                    var date = info.date;
+
+                    // Saat dilimi farkını hesaplayın
+                    var timezoneOffset = date.getTimezoneOffset() * 60000;
+
+                    // Saat dilimi farkını dikkate alarak tarihi ISO formatına dönüştürün
+                    var localISOTime = (new Date(date - timezoneOffset)).toISOString().slice(0, 16);
+
+                    // Tarihi formdaki başlangıç ve bitiş tarih alanlarına yerleştirin
+                    $('#taskStartDateInput').val(localISOTime);
+                    $('#taskEndDateInput').val(localISOTime);
+
+                    // Modal formu açın
+                    $('#createTaskModal').modal('show');
+            },
+            eventDrop: function (info) {
+                updateTask(info.event);
+            },
+
+            eventResize: function (info) {
+                updateTask(info.event);
+            },
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            initialDate: initialDate,
+            initialView: initialView,
+            locale: "tr",
+            themeSystem: "bootstrap",
+            navLinks: true,
+            selectable: true,
+            selectMirror: true,
+            editable: true,
+            dayMaxEvents: true,
+            events: function (fetchInfo, successCallback, failureCallback) {
+                fetchTasks(parseInt(studentSelect.value, 10), successCallback, failureCallback);
+            },
+            datesSet: function (info) {
+                // Kullanıcının mevcut tarih ve görünüm ayarlarını localStorage'a kaydedin
+                localStorage.setItem("currentDate", info.view.currentStart.toISOString());
+                localStorage.setItem("currentView", info.view.type);
+            },
+            select: function (arg) {
+                // Fill the modal with event information
+                $('#taskTitleInput').val('');
+                $('#taskDescriptionInput').val('');
+                $('#taskStartDateInput').val(arg.startStr);
+                $('#taskEndDateInput').val(arg.endStr ? arg.endStr : arg.startStr);
+                $('#taskColorInput').val('#3788d8');
+
+                // Set the data-event-id attribute for the 'Ekle' button
+                $("#addTaskButton").attr("data-start-date", arg.startStr);
+                $("#addTaskButton").attr("data-end-date", arg.endStr ? arg.endStr : arg.startStr);
+
+                // Activate the 'Ekle' button
+                $("#addTaskButton").off("click").on("click", function () {
+                    createTask();
+                    $('#createTaskModal').modal('hide');
+                });
+
+                // Show the modal
+                $('#createTaskModal').modal('show');
+            },
+
+            eventClick: function (arg) {
+                // Fill the modal with event information
+                $('#taskTitle').text(arg.event.title);
+                $('#taskDescription').text(arg.event.extendedProps.description);
+                $('#taskStartDate').text(arg.event.start.toLocaleString());
+                $('#taskEndDate').text(arg.event.end ? arg.event.end.toLocaleString() : 'Belirtilmemiş');
+
+                // Change the URL of the 'Detay' button based on the clicked task's ID
+                var detailUrl = "/Instructor/etkinlikSil/" + arg.event.id;
+                $("#detailsButton").attr("href", detailUrl);
+
+                // Set the data-event-id attribute for the 'Kaldır' button
+                $("#deleteButton").attr("data-event-id", arg.event.id);
+
+                // Activate the 'Delete' button
+                $("#deleteButton").off("click").on("click", function () {
+                    var eventId = $(this).attr("data-event-id");
+                    deleteTask(eventId);
+                    $('#Modal1').modal('hide');
+                });
+
+                // Show the modal
+                $('#Modal1').modal('show');
+            },
+
+            editable: true,
+            dayMaxEvents: true,
+            datesSet: function (info) {
+                // Kullanıcının mevcut tarih ve görünüm ayarlarını localStorage'a kaydedin
+                localStorage.setItem('currentDate', info.view.currentStart.toISOString());
+                localStorage.setItem('currentView', info.view.type);
+            }
+        });
+
+        calendar.render();
+
+    function deleteTask(eventId) {
+        // AJAX request to delete the task from the database
+        $.ajax({
+            url: '/Instructor/etkinlikSil',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                id: eventId
+            },
+            success: function (response) {
+                if (response.success) {
+                    var event = calendar.getEventById(parseInt(eventId, 10)); // Update this line
+                    if (event) {
+                        event.remove();
+                    }
+                } else {
+                    // Etkinlik silinemediğinde bir hata mesajı gösterin
+                    alert("Etkinlik silinemedi.");
+                }
+            },
+            error: function (error) {
+                // If an error occurs, you can optionally display an error message
+                console.error("Hata: Etkinlik silinirken bir hata meydana geldi.", error);
+            }
+        });
+            }
+
+            function createTask() {
+                var title = $('#taskTitleInput').val();
+                var description = $('#taskDescriptionInput').val();
+                var start = new Date($('#taskStartDateInput').val()).toISOString();
+                var end = new Date($('#taskEndDateInput').val()).toISOString();
+                var color = $('#taskColorInput').val();
+                var textColor = '#fff'; // Add this line
+
+                $.ajax({
+                    url: '/Instructor/createTask',
+                    type: 'POST',
+                    data: {
+                        title: title,
+                        description: description,
+                        start: start,
+                        end: end,
+                        color: color,
+                        textColor: textColor, // Add this line
+                        studentId: studentId
+                    },
+                    success: function (response) {
+                        console.log(response); // Log the response
+
+                        if (response.success) {
+                            var task = response.task || response; // Add this line
+
+                            var newEvent = {
+                                id: task.TasksID,
+                                title: task.title,
+                                start: new Date(task.start),
+                                end: new Date(task.end),
+                                color: task.color,
+                                textColor: task.textColor
+                            };
+                            calendar.addEvent(newEvent);
+                        } else {
+                            // Handle error
+                        }
+                    },
+                    error: function (error) {
+                        // If an error occurs, you can optionally display an error message
+                    }
+                });
+            }
+
+
+            function fetchTasks(studentId, successCallback, failureCallback) {
+                $.ajax({
+                    url: '/Instructor/etkinlikGetir?studentId=' + studentId,
+                    type: 'GET',
+                    success: function (data) {
+                        var newEvents = data.map(function (task) {
+                            return {
+                                id: task.TasksID,
+                                studentId: task.StudentID, // Add the studentId property
+                                title: task.title,
+                                start: parseAspNetDate(task.start),
+                                end: parseAspNetDate(task.end),
+                                description: task.description,
+                                backgroundColor: task.color,
+                                textColor: task.textColor
+                            };
+                        });
+                        // Add the fetched tasks to the events array
+                        events = newEvents;
+                        calendar.removeAllEvents();
+                        // Filter the events and add them to the calendar
+                        var filteredEvents = filterEvents(studentId);
+                        successCallback(filteredEvents);
+                    },
+                    error: function (error) {
+                        console.log('Error in Fetch Tasks', error);
+                        failureCallback(error);
+                    }
+                });
+            }
+
+        function fillStudentOptions() {
+    var students = @Html.Raw(Model.TaskList.Select(t => t.Students).Distinct().ToList() != null ? Newtonsoft.Json.JsonConvert.SerializeObject(Model.TaskList.Select(t => t.Students).Distinct().ToList(), new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore }) : "[]");
+    var studentSelect = document.getElementById('studentSelect');
+    students.forEach(function (student) {
+        var option = document.createElement('option');
+        option.value = student.StudentID;
+        option.text = student.Name + ' ' + student.Surname;
+        studentSelect.appendChild(option);
+    });
+}
+
+
+
+
+        // Update task function
+        function updateTask(event) {
+            var eventId = event.id;
+            var newStart = event.start.toISOString();
+            var newEnd = event.end ? event.end.toISOString() : null;
+
+            // AJAX request to update the task's start and end dates on the server
+            $.ajax({
+                url: '/Instructor/updateTask',
+                type: 'POST',
+                data: {
+                    id: eventId,
+                    start: newStart,
+                    end: newEnd
+                },
+                success: function (response) {
+                    // If the operation is successful, you can optionally display a notification
+                },
+                error: function (error) {
+                    // If an error occurs, you can optionally display an error message
+                }
+            });
+        }
+    });
+    </script>
+
+
+
+
+
+</head>
+<body>
+    <div class="container-fluid">
+        <select id="studentSelect">
+            <option value=@studentId></option>
+            <!-- Burada öğrenci seçenekleriniz olacak -->
+        </select>
+        <div id='calendar'></div>
+    </div>
+    <!-- Modal content -->
+    <div class="modal" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-white text-black">
+                    <h5 class="modal-title" id="ModalLabel">Görev Detayları</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Başlık</th>
+                                    <td id="taskTitle"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Açıklama</th>
+                                    <td id="taskDescription"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Başlangıç tarihi</th>
+                                    <td id="taskStartDate"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Bitiş tarihi</th>
+                                    <td id="taskEndDate"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="deleteButton" data-event-id="">Kaldır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Create Task Modal -->
+    <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createTaskModalLabel">Yeni Görev Oluştur</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="taskTitleInput">Başlık</label>
+                            <input type="text" class="form-control" id="taskTitleInput" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDescriptionInput">Açıklama</label>
+                            <textarea class="form-control" id="taskDescriptionInput"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskStartDateInput">Başlangıç Tarihi</label>
+                            <input type="datetime-local" class="form-control" id="taskStartDateInput" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskEndDateInput">Bitiş Tarihi</label>
+                            <input type="datetime-local" class="form-control" id="taskEndDateInput" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskColorInput">Renk</label>
+                            <input type="color" class="form-control" id="taskColorInput" value="#3788d8">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" id="addTaskButton">Ekle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
+

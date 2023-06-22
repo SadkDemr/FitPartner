@@ -1,0 +1,117 @@
+﻿@using LifeCoachWebApp.Models.Classes;
+@model List<Student>
+@{
+    ViewBag.Title = "StudentList";
+    Layout = "~/Views/Shared/_InstructorAdminPanel.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 3 | jsGrid</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/plugins/fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- jsGrid -->
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/plugins/jsgrid/jsgrid.min.css">
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/plugins/jsgrid/jsgrid-theme.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/dist/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition sidebar-mini">
+    <!-- /.card-header -->
+    <div class="card-body table-responsive p-0" style="height: 600px;">
+        <table class="table table-head-fixed text-nowrap">
+            <thead>
+                <tr>
+                    <th>Adı</th>
+                    <th>SoyAdı</th>
+                    <th>Doğum Tarihi</th>
+                    <th>Telefon No</th>
+                    <th>Kilosu</th>
+                    <th>Boyu</th>
+                    <th>Vucüt Kitle İndeksi</th>
+                    <th>Mail</th>
+                    <th>Şehir</th>
+                    <th>Görev Ata</th>
+                    <th>Detay</th>
+                    <th>Sil</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var u in Model)
+                    {
+                        <tr>
+                            <td>@u.StudentName</td>
+                            <td>@u.StudentLastName</td>
+                            <td>@u.StudentDateOfBirth</td>
+                            <td>@u.StudentPhoneNumber</td>
+                            <td>@u.StudentWeight</td>
+                            <td>@u.StudentLength</td>
+                            <td>@u.StudentFatRate</td>
+                            <td><span class="tag tag-success">@u.StudentMail</span></td>
+                            <td>@u.StudentCity</td>
+                            <td><a href="@Url.Action("StudentTaskCalender", "Instructor", new { studentId = u.StudentID })" class="btn btn-warning">Görev Ata</a></td>
+                            <td><a href="/Instructor/StudentBring/@u.StudentID" class="btn btn-success">Detay</a></td>
+                            <td><a href="/Instructor/StudentDelete/@u.StudentID" class="btn btn-danger">Sil</a></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <p>There are no students to display.</p>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/Instructor/StudentAdd" class="btn btn-primary">Yeni Öğrenci Ekle</a>
+
+    <!-- ./wrapper -->
+    <!-- jQuery -->
+    <script src="~/AdminLTE-3.0.4/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/AdminLTE-3.0.4/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- jsGrid -->
+    <script src="~/AdminLTE-3.0.4./plugins/jsgrid/demos/db.js"></script>
+    <script src="~/AdminLTE-3.0.4/plugins/jsgrid/jsgrid.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/AdminLTE-3.0.4/dist/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/AdminLTE-3.0.4/dist/js/demo.js"></script>
+    <!-- page script -->
+    <script>
+        $(function () {
+            $("#jsGrid1").jsGrid({
+                height: "100%",
+                width: "100%",
+
+                sorting: true,
+                paging: true,
+
+                data: db.clients,
+
+                fields: [
+                    { name: "Name", type: "text", width: 150 },
+                    { name: "Age", type: "number", width: 50 },
+                    { name: "Address", type: "text", width: 200 },
+                    { name: "Country", type: "select", items: db.countries, valueField: "Id", textField: "Name" },
+                    { name: "Married", type: "checkbox", title: "Is Married" }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

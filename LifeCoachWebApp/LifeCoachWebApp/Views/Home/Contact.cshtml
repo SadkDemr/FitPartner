@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "calendar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <!-- Diğer head içeriği -->
+</head>
+<body>
+    <!-- Diğer vücut içeriği -->
+
+    <div id="react-app"></div>
+
+    <!-- React ve ReactDOM CDN'leri -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+    <!-- Babel CDN -->
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Custom CSS for improved aesthetics -->
+    <style>
+        .map {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #f65d5d;
+            text-shadow: 2px 2px #CCCCCC;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #f65d5d;
+        }
+
+        .btn-primary {
+            background-color: #f65d5d;
+            border-color: #f65d5d;
+        }
+    </style>
+
+    <!-- React kodu -->
+    <script type="text/babel">
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { name: '', email: '', message: '' };
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChange(event) {
+        this.setState({[event.target.name]: event.target.value});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+
+        // Send a POST request
+        fetch('/Home/SendMail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                name: this.state.name,
+                email: this.state.email,
+                message: this.state.message
+            })
+        });
+    }
+
+    render() {
+        return (
+            <div className="container">
+                <h1 className="text-center my-4">İletişim</h1>
+
+                <div className="row">
+                    <div className="col-lg-6">
+                        <form onSubmit={this.handleSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="name">İsim</label>
+                                <input type="text" className="form-control" id="name" name="name" value={this.state.name} onChange={this.handleChange} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="email">Email</label>
+                                <input type="email" className="form-control" id="email" name="email" value={this.state.email} onChange={this.handleChange} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="message">Message</label>
+                                <textarea className="form-control" id="message" name="message" rows="3" value={this.state.message} onChange={this.handleChange}></textarea>
+                            </div>
+                            <button type="submit" className="btn btn-primary">Gönder</button>
+                        </form>
+                    </div>
+
+                            <div className="col-lg-6">
+                                <div className="padding25">
+                                    <h4>KONUM</h4>
+                                </div>
+                                <section id="full-map" className="container-fluid map-container">
+                                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12190.704935578595!2d29.0668852!3d40.1940182!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb3f4d2045afb55fc!2zRUzEsEYgVMSwQ0FSRVQ!5e0!3m2!1str!2str!4v1655858725664!5m2!1str!2str" width="600" height="450" style={{border: "0"}} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<App />, document.getElementById('react-app'));
+    </script>
+</body>

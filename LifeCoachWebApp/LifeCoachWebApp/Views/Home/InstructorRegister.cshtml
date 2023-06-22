@@ -1,0 +1,190 @@
+﻿@model LifeCoachWebApp.Models.Classes.Instructor
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Egitmen Kayit</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/plugins/fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/AdminLTE-3.0.4/dist/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition register-page">
+    <div class="register-box">
+        <div class="col-md-3">
+            <a href="/Home/Index"><h2>Ana Sayfa</h2></a>
+        </div>
+        <div class="register-logo">
+            <a href="../../index2.html"><b>Eğitmen</b> Kayıt</a>
+        </div>
+
+        <div class="card">
+            <div class="card-body register-card-body">
+                <p class="login-box-msg">Yeni Üyelik Kaydı</p>
+
+                <form method="post">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="InstructorName" placeholder="Adınız" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="InstructorLastName" placeholder="SoyAdınız" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">+90</span>
+                        </div>
+                        <input type="tel" class="form-control" name="InstructorPhoneNumber" value="0" placeholder="Telefon Numaranız" onkeypress='return event.charCode >= 48 && event.charCode <= 57 && (event.target.value.length === 0 || event.target.value.startsWith("0"))' required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label class="form-label">Alanınız*</label>
+                        @Html.DropDownListFor(x => x.WorkingAreaID, (List<SelectListItem>)ViewBag.val, new { @class = "form-control" })
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" name="InstructorMail" placeholder="Email" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" name="InstructorPass" id="InstructorPass1" placeholder="Password" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" name="InstructorPass" id="InstructorPass2" placeholder="Retype password" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <span id='message'></span>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                <input type="checkbox" id="agreeTerms" name="terms" value="agree">
+                                <label for="agreeTerms">
+                                    Okudum, kabul ediyorum <a href="#">oku</a>
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary btn-block">Kayıt</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+
+                <div class="social-auth-links text-center">
+                    <p>- OR -</p>
+                    <a href="#" class="btn btn-block btn-danger">
+                        <i class="fab fa-google-plus mr-2"></i>
+                        Sign up using Google+
+                    </a>
+                </div>
+
+                <a href="/Home/InstructorLogin" class="text-center">Üyeliğim Var</a>
+            </div>
+            <!-- /.form-box -->
+        </div><!-- /.card -->
+    </div>
+    <!-- /.register-box -->
+    <!-- jQuery -->
+    <script src="~/AdminLTE-3.0.4/plugins/jquery/jquery.min.js"></script>
+
+    <script>
+$(document).ready(function(){
+    var duplicateError = '@ViewBag.DuplicateError';
+    if (duplicateError) {
+        alert(duplicateError); // Basit bir alert ile mesajı göster
+        // veya özel bir modal popup kullanabilirsiniz.
+    }
+});
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('input[type="password"]').on('keyup', function () {
+                if ($('#InstructorPass1').val() == $('#InstructorPass2').val()) {
+                    $('#message').html('Şifre Doğru').css('color', 'green');
+                    $('#InstructorPass1, #InstructorPass2').css('border', '2px solid green');
+                } else {
+                    $('#message').html('Şifre Yanlış').css('color', 'red');
+                    $('#InstructorPass1, #InstructorPass2').css('border', '2px solid red');
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('form').on('submit', function (e) {
+                var isValid = true;
+                $('input[type="text"], input[type="email"], input[type="password"], select').each(function () {
+                    if ($.trim($(this).val()) == '') {
+                        isValid = false;
+                        $(this).css({
+                            'border': '1px solid red',
+                            'background': '#FFCECE'
+                        });
+                    }
+                    else {
+                        $(this).css({
+                            'border': '',
+                            'background': ''
+                        });
+                    }
+                });
+                if (isValid == false)
+                    e.preventDefault();
+                else
+                    alert('Thank you for registering');
+            });
+        });
+    </script>
+
+
+
+    <!-- Bootstrap 4 -->
+    <script src="~/AdminLTE-3.0.4/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/AdminLTE-3.0.4/dist/js/adminlte.min.js"></script>
+</body>
+</html>
+

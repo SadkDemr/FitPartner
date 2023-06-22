@@ -1,0 +1,182 @@
+﻿@using System.Web.Script.Serialization
+@model LifeCoachWebApp.Models.Classes.TaskViewModel
+@{
+    ViewBag.Title = "StudentTaskCalenderPage";
+    Layout = "~/Views/Shared/_StudentAdminPanel.cshtml";
+}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+    <script src='~/fullcalendar/fullcalendar-6.1.6/dist/index.global.js'></script>
+    <script>
+
+        var clickedEvent; // global variable
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            var initialDate = localStorage.getItem('currentDate') || new Date().toISOString().slice(0, 10);
+            var initialView = localStorage.getItem('currentView') || 'dayGridMonth';
+
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                initialDate: initialDate,
+                initialView: initialView,
+                locale: "tr",
+                themeSystem: "standard",
+                navLinks: true, // can click day/week names to navigate views
+                selectable: true,
+                selectMirror: true,
+                eventClick: function (arg) {
+                    clickedEvent = arg; // Assign clicked event to global variable
+
+                    // Fill the modal with event information
+                    $('#taskTitle').text(arg.event.title);
+                    $('#taskDescription').text(arg.event.extendedProps.description);
+                    $('#taskStartDate').text(arg.event.start.toLocaleString());
+                    $('#taskEndDate').text(arg.event.end ? arg.event.end.toLocaleString() : 'Belirtilmemiş');
+
+                    $('#Modal1').modal('show');
+
+                    // Button click event
+                    $('#completeTask').off('click').on('click', function () {
+                        clickedEvent.event.setProp('backgroundColor', 'red');
+                        $.ajax({
+                            type: "POST",
+                            url: "/Student/CompleteTask", // Controller method
+                            data: {
+                                id: clickedEvent.event.id
+                            },
+                            success: function (response) {
+                                alert(response.message);
+                            },
+                            error: function (response) {
+                                alert('Error: ' + response.message);
+                            }
+                        });
+                    });
+                },
+
+                editable: true,
+                dayMaxEvents: true, // allow "more" link when too many events
+                events: "/Student/etkinlikGetir"
+            });
+
+            calendar.render();
+        });
+
+
+    </script>
+
+    <style>
+
+        body {
+            margin: 40px 10px;
+            padding: 0;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        #calendar {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+    </style>
+
+
+
+</head>
+<body>
+    <div class="container-fluid">
+        <div id='calendar'></div>
+    </div>
+    <!-- Modal content -->
+    <div class="modal" id="Modal1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-white text-black">
+                    <h5 class="modal-title" id="ModalLabel">Görev Detayları</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Başlık</th>
+                                    <td id="taskTitle"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Açıklama</th>
+                                    <td id="taskDescription"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Başlangıç tarihi</th>
+                                    <td id="taskStartDate"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Bitiş tarihi</th>
+                                    <td id="taskEndDate"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button id="completeTask" type="button" class="btn btn-success">Tamamlandı</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+
+
+
+
+
